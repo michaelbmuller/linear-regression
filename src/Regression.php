@@ -5,7 +5,7 @@
  * Class for computing multiple linear regression of the form
  * y=a+b1x1+b2x2+b3x3...
  *
- * PHP version 5.4
+ * PHP version 7.4
  *
  * LICENSE:
  * Copyright (c) 2011 Shankar Manamalkav <nshankar@ufl.edu>
@@ -32,12 +32,65 @@
  * @author    Michael Cummings<mgcummings@yahoo.com>
  * @copyright 2011 Shankar Manamalkav
  */
+
 namespace mnshankar\LinearRegression;
 
 class Regression
 {
     /**
-     *
+     * @var float|int f statistic
+     */
+    private $f;
+    /**
+     * @var float|int r Square
+     */
+    private $rSquare;
+    /**
+     * @var float|int sum of squares due to error
+     */
+    private $SSEScalar;
+    /**
+     * @var float|int sum of squares due to regression
+     */
+    private $SSRScalar;
+    /**
+     * @var float|int total sum of squares
+     */
+    private $SSTOScalar;
+    /**
+     * @var array regression coefficients array
+     */
+    private array $coefficients = [];
+    /**
+     * @var float|int multiple R
+     */
+    private $multipleR;
+    /**
+     * @var int observations
+     */
+    private int $observations;
+    /**
+     * @var array p values array
+     */
+    private array $pValues = [];
+    /**
+     * @var array standard error array
+     */
+    private array $stdErrors;
+    /**
+     * @var array t statistics array
+     */
+    private array $tStats;
+    /**
+     * @var array
+     */
+    private array $x = [];
+    /**
+     * @var array
+     */
+    private array $y = [];
+
+    /**
      * @throws \DomainException
      * @throws \InvalidArgumentException
      * @throws \LogicException
@@ -45,18 +98,18 @@ class Regression
      */
     public function compute()
     {
-        if (0 === count($this->getX()) || 0 === count($this->getY())) {
+        if (0 === \count($this->getX()) || 0 === \count($this->getY())) {
             throw new \LogicException('Please supply valid X and Y arrays');
         }
-        $this->observations = count($this->getX());
+        $this->observations = \count($this->getX());
         $mx = new Matrix($this->getX());
         $my = new Matrix($this->getY());
         //coefficient(b) = (X'X)-1X'Y
         $xTx = $mx->transpose()
-                  ->multiply($mx)
-                  ->inverse();
+            ->multiply($mx)
+            ->inverse();
         $xTy = $mx->transpose()
-                  ->multiply($my);
+            ->multiply($my);
         $coeff = $xTx->multiply($xTy);
         //note: intercept is included
         $num_independent = $mx->numColumns();
@@ -69,22 +122,22 @@ class Regression
         //SSR = b(t)X(t)Y - (Y(t)UU(T)Y)/n
         //MSE = SSE/(df)
         $SSR = $coeff->transpose()
-                     ->multiply($mx->transpose())
-                     ->multiply($my)
-                     ->subtract(
-                         $my->transpose()
-                            ->multiply($um)
-                            ->multiply($um->transpose())
-                            ->multiply($my)
-                            ->scalarDivide($sample_size)
-                     );
+            ->multiply($mx->transpose())
+            ->multiply($my)
+            ->subtract(
+                $my->transpose()
+                    ->multiply($um)
+                    ->multiply($um->transpose())
+                    ->multiply($my)
+                    ->scalarDivide($sample_size)
+            );
         $SSE = $my->transpose()
-                  ->multiply($my)
-                  ->subtract(
-                      $coeff->transpose()
-                            ->multiply($mx->transpose())
-                            ->multiply($my)
-                  );
+            ->multiply($my)
+            ->subtract(
+                $coeff->transpose()
+                    ->multiply($mx->transpose())
+                    ->multiply($my)
+            );
         $SSTO = $SSR->add($SSE);
         $this->SSEScalar = $SSE->getElementAt(0, 0);
         $this->SSRScalar = $SSR->getElementAt(0, 0);
@@ -99,24 +152,25 @@ class Regression
         $seArray = [];
         $tStat = [];
         $pValue = [];
-        /** @noinspection ForeachInvariantsInspection */
-        for ($i = 0; $i < $num_independent; $i++) {
+        /* @noinspection ForeachInvariantsInspection */
+        for ($i = 0; $i < $num_independent; ++$i) {
             //get the diagonal elements
             $seArray[] = [sqrt($stdErr->getElementAt($i, $i))];
             //compute the t-statistic
             $tStat[] = [$coeff->getElementAt($i, 0) / $seArray[$i][0]];
             //compute the student p-value from the t-stat
-            $pValue[] = [$this->student_PValue($tStat[$i][0], $dfResidual)];
+            $pValue[] = [$this->studentPValue($tStat[$i][0], $dfResidual)];
         }
         //convert into 1-d vectors and store
-        /** @noinspection ForeachInvariantsInspection */
-        for ($ctr = 0; $ctr < $num_independent; $ctr++) {
+        /* @noinspection ForeachInvariantsInspection */
+        for ($ctr = 0; $ctr < $num_independent; ++$ctr) {
             $this->coefficients[] = $coeff->getElementAt($ctr, 0);
             $this->stdErrors[] = $seArray[$ctr][0];
             $this->tStats[] = $tStat[$ctr][0];
             $this->pValues[] = $pValue[$ctr][0];
         }
     }
+
     /**
      * @return array
      */
@@ -124,13 +178,15 @@ class Regression
     {
         return $this->coefficients;
     }
+
     /**
-     * @return int|float
+     * @return float|int
      */
     public function getF()
     {
         return $this->f;
     }
+
     /**
      * @return float|int
      */
@@ -138,6 +194,7 @@ class Regression
     {
         return $this->multipleR;
     }
+
     /**
      * @return int
      */
@@ -145,6 +202,7 @@ class Regression
     {
         return $this->observations;
     }
+
     /**
      * @return array
      */
@@ -152,6 +210,7 @@ class Regression
     {
         return $this->pValues;
     }
+
     /**
      * @return float|int
      */
@@ -159,6 +218,7 @@ class Regression
     {
         return $this->rSquare;
     }
+
     /**
      * @return float|int
      */
@@ -166,6 +226,7 @@ class Regression
     {
         return $this->SSEScalar;
     }
+
     /**
      * @return float|int
      */
@@ -173,6 +234,7 @@ class Regression
     {
         return $this->SSRScalar;
     }
+
     /**
      * @return float|int
      */
@@ -180,6 +242,7 @@ class Regression
     {
         return $this->SSTOScalar;
     }
+
     /**
      * @return array
      */
@@ -187,6 +250,7 @@ class Regression
     {
         return $this->stdErrors;
     }
+
     /**
      * @return array
      */
@@ -194,6 +258,7 @@ class Regression
     {
         return $this->tStats;
     }
+
     /**
      * @return array
      */
@@ -201,6 +266,7 @@ class Regression
     {
         return $this->x;
     }
+
     /**
      * @return array
      */
@@ -208,7 +274,9 @@ class Regression
     {
         return $this->y;
     }
+
     /** @noinspection MoreThanThreeArgumentsInspection */
+
     /**
      * @example  $reg->loadCSV('abc.csv',array(0), array(1,2,3));
      *
@@ -228,7 +296,7 @@ class Regression
         $xArray = [];
         $yArray = [];
         $rawData = [];
-        $handle = fopen($file, 'rb');
+        $handle = fopen($file, 'r');
         if (false === $handle) {
             throw new \InvalidArgumentException('Could not open CSV file ' . $file);
         }
@@ -241,7 +309,7 @@ class Regression
             $rawData[] = $data;
         }
         fclose($handle);
-        $sampleSize = count($rawData);  //total number of rows
+        $sampleSize = \count($rawData);  //total number of rows
         if (0 === $sampleSize) {
             throw new \InvalidArgumentException('Received empty CSV file ' . $file);
         }
@@ -253,6 +321,7 @@ class Regression
         $this->setX($xArray);
         $this->setY($yArray);
     }
+
     /**
      * @param array $x
      *
@@ -260,11 +329,12 @@ class Regression
      */
     public function setX(array $x)
     {
-        if (0 === count($x)) {
+        if (0 === \count($x)) {
             throw new \InvalidArgumentException('X can not but empty');
         }
         $this->x = $x;
     }
+
     /**
      * @param array $y
      *
@@ -272,11 +342,12 @@ class Regression
      */
     public function setY(array $y)
     {
-        if (0 === count($y)) {
+        if (0 === \count($y)) {
             throw new \InvalidArgumentException('Y can not but empty');
         }
         $this->y = $y;
     }
+
     /**
      * @param array $rawData
      * @param array $colsToExtract
@@ -288,10 +359,12 @@ class Regression
     {
         $returnArray = [1];
         foreach ($colsToExtract as $key => $val) {
-            $returnArray[] = $rawData[$row][$val];
+            $returnArray[] = $rawData[$row][$val]+0;
         }
+
         return $returnArray;
     }
+
     /**
      * @param array $rawData
      * @param array $colsToExtract
@@ -303,37 +376,41 @@ class Regression
     {
         $returnArray = [];
         foreach ($colsToExtract as $key => $val) {
-            $returnArray[] = $rawData[$row][$val];
+            $returnArray[] = $rawData[$row][$val]+0;
         }
+
         return $returnArray;
     }
+
     /**
-     * @link http://home.ubalt.edu/ntsbarsh/Business-stat/otherapplets/pvalues.htm#rtdist
+     * @see http://home.ubalt.edu/ntsbarsh/Business-stat/otherapplets/pvalues.htm#rtdist
      *
      * @param float $t_stat
      * @param float $deg_F
      *
      * @return float
      */
-    private function student_PValue($t_stat, $deg_F)
+    private function studentPValue($t_stat, $deg_F)
     {
-        $t_stat = (float)abs($t_stat);
+        $t_stat = (float) abs($t_stat);
         $mw = $t_stat / sqrt($deg_F);
         $th = atan2($mw, 1);
-        if ($deg_F === 1.0) {
+        if (1.0 === $deg_F) {
             return 1.0 - $th / (M_PI / 2.0);
         }
         $sth = sin($th);
         $cth = cos($th);
-        if ($deg_F % 2 === 1) {
+        if (1 === $deg_F % 2) {
             return 1.0 - ($th + $sth * $cth * $this->statCom($cth * $cth, 2, $deg_F - 3, -1)) / (M_PI / 2.0);
-        } else {
-            return 1.0 - ($sth * $this->statCom($cth * $cth, 1, $deg_F - 3, -1));
         }
+
+        return 1.0 - ($sth * $this->statCom($cth * $cth, 1, $deg_F - 3, -1));
     }
+
     /** @noinspection MoreThanThreeArgumentsInspection */
+
     /**
-     * @link http://home.ubalt.edu/ntsbarsh/Business-stat/otherapplets/pvalues.htm#rtdist
+     * @see http://home.ubalt.edu/ntsbarsh/Business-stat/otherapplets/pvalues.htm#rtdist
      *
      * @param float $q
      * @param float $i
@@ -352,58 +429,7 @@ class Regression
             $z += $zz;
             $k += 2;
         }
+
         return $z;
     }
-    /**
-     * @var int|float $f F statistic.
-     */
-    private $f;
-    /**
-     * @var int|float $rSquare R Square.
-     */
-    private $rSquare;
-    /**
-     * @var int|double $SSEScalar Sum of squares due to error.
-     */
-    private $SSEScalar;
-    /**
-     * @var int|double $SSRScalar Sum of squares due to regression.
-     */
-    private $SSRScalar;
-    /**
-     * @var int|double $SSTOScalar Total sum of squares.
-     */
-    private $SSTOScalar;
-    /**
-     * @var array $coefficients Regression coefficients array.
-     */
-    private $coefficients;
-    /**
-     * @var int|float $multipleR Multiple R.
-     */
-    private $multipleR;
-    /**
-     * @var int $observations observations.
-     */
-    private $observations;
-    /**
-     * @var array $pValues p values array.
-     */
-    private $pValues;
-    /**
-     * @var array $stdErrors Standard error array.
-     */
-    private $stdErrors;
-    /**
-     * @var array $tStats t statistics array.
-     */
-    private $tStats;
-    /**
-     * @var array $x
-     */
-    private $x = [];
-    /**
-     * @var array $y
-     */
-    private $y = [];
 }

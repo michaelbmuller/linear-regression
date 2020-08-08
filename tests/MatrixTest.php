@@ -2,7 +2,7 @@
 /**
  * Contains class MatrixTest.
  *
- * PHP version 5.4
+ * PHP version 7.4
  *
  * LICENSE:
  * Copyright (c) 2015 Shankar Manamalkav <nshankar@ufl.edu>
@@ -29,131 +29,141 @@
  * @author    Michael Cummings<mgcummings@yahoo.com>
  * @copyright 2015 Shankar Manamalkav
  */
-namespace mnshankar\LinearRegression;
 
-class MatrixTest extends \PHPUnit_Framework_TestCase
+namespace Tests;
+
+use mnshankar\LinearRegression\Matrix;
+use PHPUnit\Framework\TestCase;
+
+/**
+ * @internal
+ * @coversNothing
+ */
+final class MatrixTest extends TestCase
 {
     public function testAdd()
     {
         $arr1 = [
             [1, 2, 3, 4],
-            [4, 5, 6, 7]
+            [4, 5, 6, 7],
         ];
         $arr2 = [
             [1, 2, 3, 4],
-            [4, 5, 6, 7]
+            [4, 5, 6, 7],
         ];
+
         $mat1 = new Matrix($arr1);
         $mat2 = new Matrix($arr2);
         $ret = $mat1->add($mat2);
         $testRet = [[2, 4, 6, 8], [8, 10, 12, 14]];
-        $this->assertSame($ret->getInnerArray(), $testRet);
+        static::assertSame($ret->getInnerArray(), $testRet);
     }
-    /**
-     * @expectedException \DomainException
-     */
+
     public function testAddException()
     {
+        $this->expectException(\DomainException::class);
         $arr1 = [
             [1, 2, 3, 4],
-            [4, 5, 6, 7]
+            [4, 5, 6, 7],
         ];
         $arr2 = [
-            [1, 2, 3]
+            [1, 2, 3],
         ];
         $mat1 = new Matrix($arr1);
         $mat2 = new Matrix($arr2);
         $mat1->add($mat2);
     }
+
     public function testCanCreate2dMatrix()
     {
         $arr = [
             [1, 2],
-            [3, 4]
+            [3, 4],
         ];
         $m = new Matrix($arr);
-        $this->assertInstanceOf('mnshankar\LinearRegression\Matrix', $m);
+        static::assertInstanceOf('mnshankar\LinearRegression\Matrix', $m);
     }
+
     public function testDeterminant()
     {
         $arr1 = [
             [1, 2],
-            [3, 4]
+            [3, 4],
         ];
         $mat1 = new Matrix($arr1);
         $det = $mat1->determinant();
-        $this->assertSame(-2, $det);
+        static::assertSame(-2, $det);
     }
-    /**
-     * @expectedException \RangeException
-     */
+
     public function testDeterminantException()
     {
+        $this->expectException(\RangeException::class);
         $arr1 = [
             [1, 2],
             [3, 4],
-            [5, 6]
+            [5, 6],
         ];
         $mat1 = new Matrix($arr1);
         $mat1->determinant();
     }
-    /**
-     * @expectedException \InvalidArgumentException
-     */
+
     public function testInvalidMatrixException()
     {
+        $this->expectException(\InvalidArgumentException::class);
         $arr = [
             [2, 3],
-            [1]
+            [1],
         ];
-        $m = new Matrix($arr);
+        new Matrix($arr);
     }
+
     public function testInverse()
     {
         $arr1 = [
             [4, 3],
-            [3, 2]
+            [3, 2],
         ];
         $mat1 = new Matrix($arr1);
         $t = $mat1->inverse()
-                  ->getInnerArray();
+            ->getInnerArray();
         $exp = [
             [-2, 3],
-            [3, -4]
+            [3, -4],
         ];
-        $this->assertSame($exp, $t);
+        static::assertSame($exp, $t);
     }
-    /**
-     * @expectedException \RangeException
-     */
+
     public function testInverseException()
     {
+        $this->expectException(\RangeException::class);
         $arr1 = [
             [4, 3],
             [3, 2],
-            [4, 5]
+            [4, 5],
         ];
         $mat1 = new Matrix($arr1);
         $mat1->inverse();
     }
+
     /**
-     * test console display function to ensure 100% code coverage
+     * test console display function to ensure 100% code coverage.
      */
     public function testMatrixDisplay()
     {
         $arr = [
             [1, 2],
-            [3, 4]
+            [3, 4],
         ];
         $m = new Matrix($arr);
         $stringDisplay = $m->displayMatrix();
-        $this->assertSame("Order of the matrix is (2 rows X 2 columns)\n1, 2\n3, 4\n", $stringDisplay);
+        static::assertSame("Order of the matrix is (2 rows X 2 columns)\n1, 2\n3, 4\n", $stringDisplay);
     }
+
     public function testMultiply()
     {
         $arr1 = [
             [2, 0, -1, 1],
-            [1, 2, 0, 1]
+            [1, 2, 0, 1],
         ];
         $arr2 = [
             [1, 5, -7],
@@ -165,74 +175,75 @@ class MatrixTest extends \PHPUnit_Framework_TestCase
         $mat2 = new Matrix($arr2);
         $ret = $mat1->multiply($mat2);
         $testRet = [[4, 11, -15], [5, 7, -7]];
-        $this->assertSame($ret->getInnerArray(), $testRet);
+        static::assertSame($ret->getInnerArray(), $testRet);
     }
-    /**
-     * @expectedException \DomainException
-     */
+
     public function testMultiplyException()
     {
+        $this->expectException(\DomainException::class);
         $arr1 = [
             [2, 0, -1, 1],
-            [1, 2, 0, 1]
+            [1, 2, 0, 1],
         ];
         $arr2 = [
             [1, 5, -7],
             [1, 1, 0],
-            [0, -1, 1]
+            [0, -1, 1],
         ];
         $mat1 = new Matrix($arr1);
         $mat2 = new Matrix($arr2);
         $mat1->multiply($mat2);
         //the above should throw an exception!
     }
+
     public function testNotSquare()
     {
         $arr = [[1, 2], [3, 4], [5, 6]];
         $m = new Matrix($arr);
-        $this->assertFalse($m->isSquareMatrix());
+        static::assertFalse($m->isSquareMatrix());
     }
+
     public function testSubtract()
     {
         $arr1 = [
             [1, 2, 3, 4],
-            [4, 5, 6, 7]
+            [4, 5, 6, 7],
         ];
         $arr2 = [
             [1, 2, 3, 4],
-            [4, 5, 6, 7]
+            [4, 5, 6, 7],
         ];
         $mat1 = new Matrix($arr1);
         $mat2 = new Matrix($arr2);
         $ret = $mat1->subtract($mat2);
         $testRet = [[0, 0, 0, 0], [0, 0, 0, 0]];
-        $this->assertSame($ret->getInnerArray(), $testRet);
+        static::assertSame($ret->getInnerArray(), $testRet);
     }
-    /**
-     * @expectedException \DomainException
-     */
+
     public function testSubtractException()
     {
+        $this->expectException(\DomainException::class);
         $arr1 = [
             [1, 2, 3, 4],
-            [4, 5, 6, 7]
+            [4, 5, 6, 7],
         ];
         $arr2 = [
-            [1, 2, 3]
+            [1, 2, 3],
         ];
         $mat1 = new Matrix($arr1);
         $mat2 = new Matrix($arr2);
         $mat1->subtract($mat2);
     }
+
     public function testTranspose()
     {
         $arr1 = [
             [1, 2],
-            [3, 4]
+            [3, 4],
         ];
         $mat1 = new Matrix($arr1);
         $t = $mat1->transpose();
         $testArr = [[1, 3], [2, 4]];
-        $this->assertSame($t->getInnerArray(), $testArr);
+        static::assertSame($t->getInnerArray(), $testArr);
     }
 }
