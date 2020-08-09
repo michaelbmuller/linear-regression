@@ -59,6 +59,44 @@ final class RegressionTest extends TestCase
         static::assertSame([1.0, 1.5], $reg->getCoefficients());
     }
 
+    public function testAdjustedR2()
+    {
+        $reg = new \mnshankar\LinearRegression\Regression();
+        $reg->setX([
+            [1, 20347.2, 13518.9, 774.9],
+            [1, 17226.9, 12199.5, 572.4],
+            [1, 14396.4, 9296.1, 407.7],
+            [1, 17297.1, 10042.2, 201.6],
+            [1, 11938.5, 6837.3, 41.4],
+            [1, 15332.4, 8842.5, 0],
+            [1, 18465.3, 8179.2, 0],
+            [1, 21401.1, 5913.9, 0],
+            [1, 20084.4, 4113.9, 0],
+            [1, 16814.7, 4357.8, 181.8],
+            [1, 9895.5, 3204.9, 496.8],
+            [1, 8372.7, 2953.8, 672.3],
+        ]);
+        $reg->setY([
+            [13966843.97],
+            [16892410.56],
+            [15235719.15],
+            [14595901.15],
+            [12652260.53],
+            [17793587.49],
+            [19617299.18],
+            [18120571.55],
+            [16401167.76],
+            [13402384.85],
+            [10635188.42],
+            [9775715.679],
+        ]);
+        $reg->compute();
+
+        static::assertEqualsWithDelta([9330301.2586573, 295.30205309732, 325.9022378502, -5554.493412566], $reg->getCoefficients(), 1e-7);
+        static::assertSame(8.9207502079429, $reg->getF());
+        static::assertSame(0.68356479219272, $reg->getAdjustedRSquare());
+    }
+
     public function testInvalidSetXException()
     {
         $this->expectException(\InvalidArgumentException::class);

@@ -89,6 +89,10 @@ class Regression
      * @var array
      */
     private array $y = [];
+    /**
+     * @var float|int
+     */
+    private $adjustedRSquare;
 
     /**
      * @throws \DomainException
@@ -144,6 +148,8 @@ class Regression
         $this->SSTOScalar = $SSTO->getElementAt(0, 0);
         $this->rSquare = $this->SSRScalar / $this->SSTOScalar;
         $this->multipleR = sqrt($this->getRSquare());
+        $this->adjustedRSquare = 1 - ((1 - $this->getRSquare()) * ($sample_size - 1))
+            / ($sample_size - $mx->numColumns());
         $this->f = $this->SSEScalar ? (($this->SSRScalar / $dfModel) / ($this->SSEScalar / $dfResidual)) : 1e100;
         $MSE = $SSE->scalarDivide($dfResidual);
         //this is a scalar.. get element
@@ -217,6 +223,14 @@ class Regression
     public function getRSquare()
     {
         return $this->rSquare;
+    }
+
+    /**
+     * @return float|int
+     */
+    public function getAdjustedRSquare()
+    {
+        return $this->adjustedRSquare;
     }
 
     /**
