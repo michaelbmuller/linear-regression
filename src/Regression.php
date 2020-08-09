@@ -144,7 +144,7 @@ class Regression
         $this->SSTOScalar = $SSTO->getElementAt(0, 0);
         $this->rSquare = $this->SSRScalar / $this->SSTOScalar;
         $this->multipleR = sqrt($this->getRSquare());
-        $this->f = (($this->SSRScalar / $dfModel) / ($this->SSEScalar / $dfResidual));
+        $this->f = $this->SSEScalar ? (($this->SSRScalar / $dfModel) / ($this->SSEScalar / $dfResidual)) : 1e100;
         $MSE = $SSE->scalarDivide($dfResidual);
         //this is a scalar.. get element
         $e = $MSE->getElementAt(0, 0);
@@ -157,7 +157,7 @@ class Regression
             //get the diagonal elements
             $seArray[] = [sqrt($stdErr->getElementAt($i, $i))];
             //compute the t-statistic
-            $tStat[] = [$coeff->getElementAt($i, 0) / $seArray[$i][0]];
+            $tStat[] = $seArray[$i][0] ? [$coeff->getElementAt($i, 0) / $seArray[$i][0]] : [1e100];
             //compute the student p-value from the t-stat
             $pValue[] = [$this->studentPValue($tStat[$i][0], $dfResidual)];
         }
@@ -359,7 +359,7 @@ class Regression
     {
         $returnArray = [1];
         foreach ($colsToExtract as $key => $val) {
-            $returnArray[] = $rawData[$row][$val]+0;
+            $returnArray[] = $rawData[$row][$val] + 0;
         }
 
         return $returnArray;
@@ -376,7 +376,7 @@ class Regression
     {
         $returnArray = [];
         foreach ($colsToExtract as $key => $val) {
-            $returnArray[] = $rawData[$row][$val]+0;
+            $returnArray[] = $rawData[$row][$val] + 0;
         }
 
         return $returnArray;

@@ -50,6 +50,15 @@ final class RegressionTest extends TestCase
         static::assertSame($this->getYForTesting(), $reg->getY());
     }
 
+    public function testSimpleRegression()
+    {
+        $reg = new \mnshankar\LinearRegression\Regression();
+        $reg->setX([[1, 1], [1, 2], [1, 3], [1, 4]]);
+        $reg->setY([[2.5], [4], [5.5], [7]]);
+        $reg->compute();
+        static::assertSame([1, 1.5], $reg->getCoefficients());
+    }
+
     public function testInvalidSetXException()
     {
         $this->expectException(\InvalidArgumentException::class);
