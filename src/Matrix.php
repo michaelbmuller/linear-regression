@@ -44,15 +44,15 @@ class Matrix
     /**
      * @var int num of columns in matrix
      */
-    private int $columns;
+    private $columns;
     /**
      * @var array holds the actual matrix structure
      */
-    protected array $mainMatrix = [];
+    protected $mainMatrix = [];
     /**
      * @var int num of rows in matrix
      */
-    protected int $rows;
+    protected $rows;
 
     /**
      * Matrix Constructor.

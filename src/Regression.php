@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Contains class Regression.
  *
@@ -60,7 +61,7 @@ class Regression
     /**
      * @var array regression coefficients array
      */
-    private array $coefficients = [];
+    private $coefficients = [];
     /**
      * @var float|int multiple R
      */
@@ -68,27 +69,27 @@ class Regression
     /**
      * @var int observations
      */
-    private int $observations;
+    private $observations;
     /**
      * @var array p values array
      */
-    private array $pValues = [];
+    private $pValues = [];
     /**
      * @var array standard error array
      */
-    private array $stdErrors;
+    private $stdErrors;
     /**
      * @var array t statistics array
      */
-    private array $tStats;
+    private $tStats;
     /**
      * @var array
      */
-    private array $x = [];
+    private $x = [];
     /**
      * @var array
      */
-    private array $y = [];
+    private $y = [];
     /**
      * @var float|int
      */
@@ -292,14 +293,14 @@ class Regression
     /** @noinspection MoreThanThreeArgumentsInspection */
 
     /**
-     * @example  $reg->loadCSV('abc.csv',array(0), array(1,2,3));
-     *
      * @param string $file
      * @param array  $dependentVariableColumn
      * @param array  $independentVariableColumns
      * @param bool   $hasHeader
      *
      * @throws \InvalidArgumentException
+     *
+     * @example  $reg->loadCSV('abc.csv',array(0), array(1,2,3));
      */
     public function loadCSV(
         $file,
